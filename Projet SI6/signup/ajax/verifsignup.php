@@ -1,60 +1,76 @@
 <?php
-include('../../class/bd.php');
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-    if (isset($_POST['inscription'])) {
-        $email = NULL;
-        $email = htmlentities(strtolower(trim($email)));
-        $mot_de_passe = NULL;
-        $mot_de_passe = trim($mot_de_passe);
-        $conf_mot_de_passe = NULL;
-        $conf_mot_de_passe = trim($conf_mot_de_passe);
+include('../class/bd.php');
 
+// S'il y a une session alors on ne retourne plus sur cette page
+if (isset($_SESSION['id'])){
+header('Location: ../index.php');
+exit;
+}
 
-// Vérification du email
-        if (empty($email)) {
-            $valid = false;
-            $er_email = "Le mail ne peut pas être vide";
+if(!empty($_POST)){
+extract($_POST);
+$valid = true;
 
-// On vérifit que le email est dans le bon format
-        } elseif (!preg_match("/^[a-z0-9\-_.]+@[a-z]+\.[a-z]{2,3}$/i", $email)) {
-            $valid = false;
-            $er_email = "Le email n'est pas valide";
+if (isset($_POST['inscription'])){
+    $email = htmlentities(strtolower(trim($email)));
+    $mot_de_passe = trim($mot_de_passe);
+    $conf_mot_de_passe = trim($conf_mot_de_passe);
 
-        } else {
-            // On vérifit que le email est disponible
-            $req_email = $DB->query("SELECT email FROM utilisateur WHERE email = ?",
-                array($email));
+// Vérification du mail
+if(empty($email)){
+    $valid = false;
+    $er_email = "L'email ne peut pas être vide";
 
-            $req_email = $req_email->fetch();
+// On vérifit que l'email est dans le bon format
+}elseif(!preg_match("/^[a-z0-9\-_.]+@[a-z]+\.[a-z]{2,3}$/i", $email)){
+    $valid = false;
+    $er_email = "L'email n'est pas valide";
+}else{
 
-            if ($req_email['email'] <> "") {
-                $valid = false;
-                $er_email = "Ce email existe déjà";
-            }
-        }
+// On vérifit que l'email est disponible
+$req_email = $DB->query("SELECT 'email' FROM 'utilisateur' WHERE 'email' = ?",array($email));
+$req_email = $req_email->fetchs();
+
+if ($req_email['email'] <> ""){
+    $valid = false;
+    $er_email = "Cet email existe déjà";
+}
+}
 
 // Vérification du mot de passe
+if(empty($mot_de_passe)) {
+    $valid = false;
+    $er_mot_de_passe = "Le mot de passe ne peut pas être vide";
 
-        if (empty($mot_de_passe)) {
-            $valid = false;
-            $er_mot_de_passe = "Le mot de passe ne peut pas être vide";
-
-        } elseif ($mot_de_passe != $conf_mot_de_passe) {
-            $valid = false;
-            $er_mot_de_passe = "La confirmation du mot de passe ne correspond pas";
-        }
+}elseif($mot_de_passe != $conf_mot_de_passe){
+    $valid = false;
+    $er_mot_de_passe = "La confirmation du mot de passe ne correspond pas";
+}
 
 // Si toutes les conditions sont remplies alors on fait le traitement
-        if ($valid) {
-            $mot_de_passe = crypt($mot_de_passe);
+if($valid){
+$mot_de_passe = crypt($mot_de_passe);
 
 // On insert nos données dans la table utilisateur
-            $DB->insert("INSERT INTO utilisateur (email, mot_de_passe) VALUES 
-                    (?, ?)",
-array($email, $mot_de_passe));
+$id= $DB->insert("INSERT INTO utilisateur (email, mot_de_passe, nom, prenom, adresse, ville, code_postal) VALUES (:email, :mot_de_passe, :nom, :prenom, :adresse, :ville, :code_postal)",
+array($email, $mot_de_passe, $nom, $prenom, $adresse, $ville, $code_postal));
 
-header('Location: index.php');
+$_SESSION['id'] = $id;
+$_SESSION['email'] = $email;
+$_SESSION['mot_de_passe'] = $mot_de_passe;
+$_SESSION['nom'] = $nom;
+$_SESSION['prenom'] = $prenom;
+$_SESSION['adresse'] = $adresse;
+$_SESSION['ville'] = $ville;
+$_SESSION['code_postal'] = $code_postal;
+
+header('Location: ../index.php');
 exit;
-        }
-    }
-            ?>
+}
+}
+}
+?>

@@ -1,20 +1,5 @@
 <?php
-session_start();
-include('../class/bd.php');
-include('../signup/ajax/verifsignup.php');
-
-//S'il y a une session alors on ne retourne plus sur cette page
-if (isset($_SESSION['id'])){
-header('Location: index.php');
-exit;
-}
-
-
-if(!empty($_POST)) {
-    extract($_POST);
-    $valid = true;
-
-}
+include('ajax/verifsignup.php');
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +8,7 @@ if(!empty($_POST)) {
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Espace membre</title>
+        <title>Inscription</title>
 
         <link href="../css/style.css" rel="stylesheet">
 
@@ -38,10 +23,10 @@ if(!empty($_POST)) {
                 <a class="nav-link" href="signup.php">Inscription</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Connexion</a>
+                <a class="nav-link" href="../connection/connection.php">Connexion</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Espace membre</a>
+                <a class="nav-link" href="../modifyprofil/modifyprofil.php">Espace membre</a>
             </li>
         </ul>
     </nav>
@@ -72,7 +57,7 @@ if(!empty($_POST)) {
 
 
                 <div class="form-group">
-                    <label for="password">Mot de passe : </label>
+                    <label for="mot_de_passe">Mot de passe : </label>
                     <input type="password" name="mot_de_passe" value="<?php if (isset($mot_de_passe)) {
                         echo $mot_de_passe;
                     } ?>" class="form-control  input-sm" required>
@@ -89,12 +74,12 @@ if(!empty($_POST)) {
                 </div>
 
                 <div class="form-group">
-                    <label for="confirm_password">Confirmation de mot de passe : </label>
+                    <label for="confirm_mot_de_passe">Confirmation de mot de passe : </label>
                     <input type="password" name="conf_mot_de_passe" value="" class="form-control  input-sm" required>
                 </div>
 
                 <div class="form-group">
-                    <input type="submit" name="submit" value="Valider" class="btn btn-sm btn-primary btn-block">
+                    <input type="submit" name="inscription" value="Valider" class="btn btn-sm btn-primary btn-block">
                 </div>
 
             </form>
